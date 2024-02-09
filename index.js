@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 // Require the necessary discord.js classes
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
-const { token } = require('./config.json');
+const { wumpus } = require('./config.json');
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -57,4 +57,4 @@ client.on(Events.InteractionCreate, async interaction => {
 });
 
 // Log in to Discord with your client's token
-client.login(token);
+client.login(wumpus.token);
