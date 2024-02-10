@@ -8,9 +8,10 @@ const contentSearch = async (key, options) => {
   	let response = await axios.get(endpoint)
 		let dataset = (response.data.Search.map(result => { return result.Type === 'series' ? result : '' }))[0]
 		let domains = ['vidsrc.in', 'vidsrc.pm', 'vidsrc.xyz', 'vidsrc.net']
-		series.urls = domains.map(domain => {
-			return `https://${domain}/embed/tv?imdb=${series.imdbID}&season=${options.season}&episode=${options.episode}`
+		dataset.urls = domains.map(domain => {
+			return `https://${domain}/embed/tv?imdb=${dataset.imdbID}&season=${options.season}&episode=${options.episode}`
 		})
+
 		return dataset
 	} catch (error) {
 		return error
@@ -44,21 +45,22 @@ module.exports = {
 					episode: interaction.options.getInteger('episode')
 				}
 				const results = await contentSearch(omdb.key, options)
-				/*
-				const streamLink1 = new ButtonBuilder().setLabel('Stream 1').setURL(results.urls[0]).setStyle(ButtonStyle.Link)
-				const streamLink2 = new ButtonBuilder().setLabel('Stream 2').setURL(results.urls[1]).setStyle(ButtonStyle.Link)
-				const streamLink3 = new ButtonBuilder().setLabel('Stream 3').setURL(results.urls[2]).setStyle(ButtonStyle.Link)
-				const streamLink4 = new ButtonBuilder().setLabel('Stream 4').setURL(results.urls[3]).setStyle(ButtonStyle.Link)
-				*/
 				const row = new ActionRowBuilder()
 				
-				// .addComponents(streamLink1).addComponents(streamLink2).addComponents(streamLink3).addComponents(streamLink4)
-
 				row.addComponents(new ButtonBuilder().setLabel('Stream 1').setURL(results.urls[0]).setStyle(ButtonStyle.Link))
-
-				// const embed = new EmbedBuilder().addFields()
+				row.addComponents(new ButtonBuilder().setLabel('Stream 2').setURL(results.urls[1]).setStyle(ButtonStyle.Link))
+				row.addComponents(new ButtonBuilder().setLabel('Stream 3').setURL(results.urls[2]).setStyle(ButtonStyle.Link))
+				row.addComponents(new ButtonBuilder().setLabel('Stream 4').setURL(results.urls[3]).setStyle(ButtonStyle.Link))
+				
+				const embed = new EmbedBuilder()
+					.setColor(0xFFE135)
+					.setTitle(`${results.Title} [${results.Year}]`)
+					.setURL(`https://imdb.com/title/${results.imdbID}`)
+					.setDescription(`Season ${options.season} Episode ${options.episode}`)
+					.setThumbnail(`${results.Poster}`)
+				
 				await interaction.reply({
-					content: `${results.Title} - S${options.season}:E${options.episode}`,
+					embeds: [embed],
 					components: [row],
 					ephemeral: true
 				})
@@ -66,7 +68,7 @@ module.exports = {
 			catch (error) {
 				console.error(error)
 				await interaction.reply({
-					content: `Sorry nothing found for "${options.query}". Please try something else.`,
+					content: `Apologies an error has occured, please try something else.`,
 					ephemeral: true
 				})
 			}
